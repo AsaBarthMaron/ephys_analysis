@@ -140,7 +140,7 @@ for iBlock = 1:nBlocks
         tmpRaster(locs, i) = 1;
     end
     
-    checkPeaks = 1;
+    checkPeaks = 0;
     if checkPeaks
 %         figure
         for i = 1:size(VmFilt, 2)
@@ -205,4 +205,72 @@ for iBlock = 1:length(dataFiles)
     h = subplot(3, length(dataFiles), iBlock)
     title(data(iBlock).matSaveFile(12:end-6), 'interpreter', 'none')
 end
+%% Plot things (for Rachel's RO1 - concentration series)
+figure
+subplot = @(m,n,p) subtightplot (m, n, p, [0.03 0.01], [0.02 0.02], [0.03 0.03]);
+h = subplot(2, length(dataFiles), 1)
+
+for iBlock = 1:length(dataFiles)
+    for iPulseType = 3
+        h = subplot(2, length(dataFiles), ....
+                    iBlock + ((iPulseType -3) * length(dataFiles)))
+        rasterLocs = 0:1/size(raster, 2):(1-1/size(raster, 2));
+        for iTrial = 1:size(raster, 2)
+            h = quickRaster(find(raster(:,iTrial,iPulseType,iBlock)), ...
+                                        rasterLocs(iTrial), 1/size(raster, 2));
+            hold on
+        end
+        
+        
+        h = plot(psth(:,iPulseType,iBlock)/max(psth(:)), 'linewidth', 1)
+        set(gca, 'box', 'off');
+        
+        odorSignal = data(iBlock).odorSignal(:, iPulseType);
+        odorSignal = (odorSignal/max(odorSignal) * 0.05);
+        odorSignal(odorSignal == 0 ) = NaN;
+        
+        plot(odorSignal + 1, 'k', 'linewidth', 3);
+        axis tight
+        ax = gca;
+        ax.YTick = []
+    end
+end
+for iBlock = 1:length(dataFiles)
+    h = subplot(2, length(dataFiles), iBlock)
+    title(data(iBlock).matSaveFile(12:end-6), 'interpreter', 'none')
+end
 % plot(quickPSTH(psth(:,1,1), binSize))
+%% Plot things (for Rachel's RO1 - 70A09 line)
+figure
+subplot = @(m,n,p) subtightplot (m, n, p, [0.03 0.01], [0.02 0.02], [0.03 0.03]);
+h = subplot(3, length(rasterM6), 1)
+
+for iCell = 1:length(rasterM6)
+    for iPulseType = 1:3
+        h = subplot(3, length(rasterM6), ....
+                    iCell + ((iPulseType -1) * length(rasterM6)))
+        rasterLocs = 0:1/size(rasterM6{iCell}, 2):(1-1/size(rasterM6{iCell}, 2));
+        for iTrial = 1:size(rasterM6{iCell}, 2)
+            h = quickRaster(find(rasterM6{iCell}(:,iTrial,iPulseType)), ...
+                                        rasterLocs(iTrial), 1/size(rasterM6{iCell}, 2));
+            hold on
+        end
+        
+        
+        h = plot(psthM6(:,iPulseType,iCell)/max(psthM6(:)), 'linewidth', 1)
+        set(gca, 'box', 'off');
+        
+        odorSignal = data(iCell).odorSignal(:, iPulseType);
+        odorSignal = (odorSignal/max(odorSignal) * 0.05);
+        odorSignal(odorSignal == 0 ) = NaN;
+        
+        plot(odorSignal + 1, 'k', 'linewidth', 3);
+        axis tight
+        ax = gca;
+        ax.YTick = []
+    end
+end
+for iCell = 1:length(rasterM6)
+    h = subplot(3, length(rasterM6), iCell)
+    title(data(iCell).matSaveFile(12:end-6), 'interpreter', 'none')
+end
