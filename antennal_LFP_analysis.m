@@ -62,7 +62,7 @@ for iBlock = 1:nBlocks
     end
     
     % TODO: get true gain from telegraph output.
-    tmpLfp = (tmpLfp/500)* 1e3; % Hard coded 100x gain, rescaling to units of mV.
+    tmpLfp = (tmpLfp/500)* 1e3; % Hard coded gain, rescaling to units of mV.
     %% Find spike times
     % VmThresh = Vm(Vm >
     tmpLfp = reshape(tmpLfp, lfpSize(1), lfpSize(2) * lfpSize(3) * lfpSize(4));

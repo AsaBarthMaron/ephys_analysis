@@ -19,7 +19,7 @@ if ~skipLoad
 end
 %% Check individual trials
 
-checkRawTrials = 1;
+checkRawTrials = 0;
 if checkRawTrials
     h = figure;
     for iBlock = nBlocks:-1:1
@@ -153,12 +153,12 @@ for iBlock = 1:nBlocks
     tmpRaster = reshape(tmpRaster, VmSize(1), VmSize(2), VmSize(3),  VmSize(4));
     tmpPsth = squeeze(mean(tmpRaster, 2));
     % tmpPsth = tmpRaster * 100;
-    binSize = 0.01 * sampRate(iBlock); 
+    binSize = 0.06 * sampRate(iBlock); 
 
     
     for i = 1:VmSize(3)
         for j = 1:VmSize(4)
-            tmpPsth(:,i, j) = quickPSTH(tmpPsth(:, i, j), binSize);
+            tmpPsth(:,i, j) = quickPSTH(tmpPsth(:, i, j), binSize, 'method', 'hanning');
         end
     end
 %     for i = 1:VmSize(3)
@@ -174,7 +174,7 @@ end
 flipdim(raster, 2);
 %% Plot things
 figure
-subplot = @(m,n,p) subtightplot (m, n, p, [0.03 0.01], [0.02 0.02], [0.03 0.03]);
+subplot = @(m,n,p) subtightplot (m, n, p, [0.03 0.01], [0.03 0.03], [0.03 0.03]);
 h = subplot(3, length(dataFiles), 1)
 
 for iBlock = 1:length(dataFiles)
@@ -189,22 +189,26 @@ for iBlock = 1:length(dataFiles)
         end
         
         
-        h = plot(psth(:,iPulseType,iBlock)/max(psth(:)), 'linewidth', 1)
+        h = plot(psth(:,iPulseType,iBlock)/max(psth(:)), 'linewidth', 1.5)
         set(gca, 'box', 'off');
         
         odorSignal = data(iBlock).odorSignal(:, iPulseType);
         odorSignal = (odorSignal/max(odorSignal) * 0.05);
         odorSignal(odorSignal == 0 ) = NaN;
         
-        plot(odorSignal + 1, 'k', 'linewidth', 3);
-        axis tight
+        plot(odorSignal + 1, 'color', [0.4940    0.1840    0.5560], 'linewidth', 8);
+%         axis tight
+        axis([ 0 (11 * sampRate(1)) 0 1.1])
         ax = gca;
         ax.YTick = []
+        ax.YAxis.Color = 'w';
+        ax.FontSize = 15.4;
+%         ax.XLabel.Position = ax.XLabel.Position - [-10e4 -10e4 10e4];
     end
 end
 for iBlock = 1:length(dataFiles)
     h = subplot(3, length(dataFiles), iBlock)
-    title(data(iBlock).matSaveFile(12:end-6), 'interpreter', 'none')
+    title(data(iBlock).matSaveFile(12:end-6), 'interpreter', 'none', 'FontSize', 20)
 end
 % %% Plot things (for Rachel's RO1 - concentration series)
 % figure
@@ -241,7 +245,7 @@ end
 %     title(data(iBlock).matSaveFile(12:end-6), 'interpreter', 'none')
 % end
 % % plot(quickPSTH(psth(:,1,1), binSize))
-% %% Plot things (for Rachel's RO1 - 70A09 line)
+%% Plot things (for Rachel's RO1 - 70A09 line)
 % figure
 % subplot = @(m,n,p) subtightplot (m, n, p, [0.03 0.01], [0.02 0.02], [0.03 0.03]);
 % h = subplot(3, length(rasterM6), 1)
@@ -258,7 +262,7 @@ end
 %         end
 %         
 %         
-%         h = plot(psthM6(:,iPulseType,iCell)/max(psthM6(:)), 'linewidth', 1)
+%         h = area(psthM6(:,iPulseType,iCell)/max(psthM6(:)), 'linewidth', 1)
 %         set(gca, 'box', 'off');
 %         
 %         odorSignal = data(iCell).odorSignal(:, iPulseType);
@@ -275,3 +279,57 @@ end
 %     h = subplot(3, length(rasterM6), iCell)
 %     title(data(iCell).matSaveFile(12:end-6), 'interpreter', 'none')
 % end
+%% Plot things (for my DAC - 70A09/24C12 examples)
+figure
+subplot = @(m,n,p) subtightplot (m, n, p, [0.01 0.01], [0.02 0.05], [0.045 0.03]);
+h = subplot(3, size(psthM4, 3), 1)
+
+for iCell = 1:size(psthM4, 3)
+    for iPulseType = 1:3
+        h = subplot(3, size(psthM4, 3), ....
+                    iCell + ((iPulseType -1) * size(psthM4, 3)))
+
+        
+        h = area(psthM4(:,iPulseType,iCell)/max(psthM4(:)) * 100, 'linewidth', 1)
+        set(gca, 'box', 'off');
+        
+        odorSignal = data(iCell).odorSignal(:, iPulseType);
+        odorSignal = (odorSignal/max(odorSignal) * 0.05);
+        odorSignal(odorSignal == 0 ) = NaN;
+        
+        hold on
+        plot(odorSignal + 102, 'k', 'linewidth', 5);
+        axis([0 11e4 0 105])
+        ax = gca;
+        ax.XTick = []
+        ax.YTick = []
+        ax.YAxis.Color = 'w';
+        ax.XAxis.Color = 'w';
+        ax.FontName = 'Calibri';
+        ax.FontSize = 22;
+    end
+end
+for iCell = 1:size(psthM4, 3)
+    h = subplot(3, size(psthM4, 3), iCell)
+    ax = gca;
+    ax.FontName = 'Calibri';
+%     title(data(iCell).matSaveFile(12:end-6), 'interpreter', 'none')
+    
+end
+for iCell = [1 4 7]
+    subplot(3, size(psthM4, 3), iCell)
+    ax = gca;
+    ax.YAxis.Color = 'k';
+    ax.YTick = [0 100];
+    ax.LineWidth = 3;
+end
+subplot(3,3,4)
+% ylabel('spikes/sec')
+subplot(3,3,1)
+title('Cell 1', 'FontSize', 34)
+subplot(3,3,2)
+title('Cell 2', 'FontSize', 34)
+subplot(3,3,3)
+title('Cell 3', 'FontSize', 34)
+hold on
+plot([nan(8e4,1); ones(2e4,1); nan(1e4,1)] * 70, 'k', 'linewidth', 5);
