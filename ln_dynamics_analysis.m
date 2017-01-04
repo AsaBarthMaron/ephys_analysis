@@ -5,7 +5,7 @@
 skipLoad = 0;
 if ~skipLoad
     clear
-    folderPath = 'Z:\Data\recordings\LN_dynamics\GMR-71F08-gal4\2016-09-21';
+    folderPath = 'Z:\Data\recordings\LN_dynamics\NP1227-gal4\2016-12-18';
     load([folderPath filesep 'dataFiles.mat']);
     dataFiles = flipud(dataFiles);
     nBlocks = length(dataFiles);
@@ -22,7 +22,7 @@ end
 checkRawTrials = 1;
 if checkRawTrials
     h = figure;
-    for iBlock = nBlocks:-1:1
+    for iBlock = 1:nBlocks;
         for iTrial = 1:size(data(iBlock).data, 3)
             plot_odor_trial(h, data(iBlock).data(:,3,iTrial) * 10, ...
                             data(iBlock).odorSignal(:, data(iBlock).randTrials(iTrial)), ...
@@ -142,7 +142,7 @@ for iBlock = 1:nBlocks
     
     checkPeaks = 0;
     if checkPeaks
-%         figure
+        figure
         for i = 1:size(VmFilt, 2)
             title(['Block ' num2str(iBlock) ', Trial ' num2str(i)])
             findpeaks(VmThresh(:, i), 'MinPeakProminence',10, 'MinPeakWidth', sampRate(iBlock) * 0.0007, 'Annotate','extents');
