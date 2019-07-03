@@ -1,4 +1,4 @@
-function h = quickRaster(spikeTimes, Y, height)
+function h = quickRaster(spikeTimes, Y, height, color)
 
     bottom = .1;
     top    = .9;
@@ -8,4 +8,4 @@ function h = quickRaster(spikeTimes, Y, height)
     yVals = [bottom.*ones(length(spikeTimes),1),...
              top.*ones(length(spikeTimes),1),...
              bottom.*ones(length(spikeTimes),1)]';
-    h = plot(xVals(:),(yVals(:)*height)+Y, 'k');
+    h = plot(xVals(:),(yVals(:)*height)+Y, 'color', color);

@@ -5,7 +5,7 @@
 skipLoad = 0;
 if ~skipLoad
     clear
-    folderPath = 'Z:\Data\recordings\LN_dynamics\NP1227-gal4\2016-12-19';
+    folderPath = 'Z:\Data\recordings\LN_dynamics\GMR-59C05-gal4\2017-06-02_cell_1';
     load([folderPath filesep 'dataFiles.mat']);
     dataFiles = flipud(dataFiles);
     nBlocks = length(dataFiles);
@@ -23,30 +23,20 @@ if ~skipLoad
 end
 %% Check individual trials
 save = 0;
-checkRawTrials = 1;
+checkRawTrials = 0;
 if checkRawTrials
-    h = @(m,n,p) subtightplot (m, n, p, [0.03 0.03], [0.13 0.12], [0.1 0.015]);
-%     h = @(m,n,p) subtightplot (m, n, p, [0.03 0.03], [0.13 0.12], [0.055 0.015]);
-    for iBlock = 5:nBlocks;
-        scaledData = scale_200B_data(data(iBlock).data);
-%         scaledData = data(iBlock).data(:,3,:)*10; 
-%         ylims(2) = max(scaledData(:));
-%         ylims(1) = min(scaledData(:));
-        ylims(2) = -25;
-        ylims(1) = -55;
-        for iTrial = 3:3:size(data(iBlock).data, 3)
+    h = @(m,n,p) subtightplot (m, n, p, [0.03 0.03], [0.13 0.12], [0.055 0.015]);
+    for iBlock = 1:nBlocks;
+        scaledData = scale_200B_data(data(iBlock).data); 
+        ylims(2) = max(scaledData(:,1));
+        ylims(1) = min(scaledData(:,1));
+        for iTrial = 1   :size(data(iBlock).data, 3)
             stim = data(iBlock).odorSignal(:, data(iBlock).randTrials(iTrial));
                        
             plot_single(data(iBlock).data(:,:,iTrial), data(iBlock).exp,...
                         data(iBlock).sampRate,...
                         'iTria', iTrial, 'stim', stim, 'h', h, 'ylims', ylims);
-%             set(gcf, 'Position', [0, 0, 1920, 600])
-        ax1 = h(5,1,1:4);
-        set(ax1, 'xtick', [0 5 10])
-        set(ax1, 'ytick', [-45 -25])
-        set(ax1, 'tickdir', 'out')
-        set(ax1, 'linewidth', 2)
-            if save
+             if save
                 figName = [data(iBlock).exp.date, '_' data(iBlock).exp.lineName, '_', data(iBlock).exp.name, '_' 'trial_' num2str(iTrial)];
                 print([folderPath filesep 'single_trials' filesep figName],'-dpng', '-r0')
             else
@@ -58,7 +48,7 @@ if checkRawTrials
 %             ylabel('Vm')
 %             title([data(iBlock).matSaveFile(12:end-6) ' trial ' num2str(iTrial)],...
 %                   'interpreter', 'none')
-
+%             set(gcf, 'Position', [0, 0, 1920, 600])
         end
     end
 end 

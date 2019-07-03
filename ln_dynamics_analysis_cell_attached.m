@@ -5,7 +5,7 @@
 skipLoad = 0;
 if ~skipLoad
     clear
-    folderPath = 'Z:\Data\recordings\LN_dynamics\NP1227-gal4\2016-12-19';
+    folderPath = 'Z:\Data\recordings\LN_dynamics\NP1227-gal4\2017-04-14_cell_attached';
     load([folderPath filesep 'dataFiles.mat']);
     dataFiles = flipud(dataFiles);
     nBlocks = length(dataFiles);
@@ -21,44 +21,45 @@ if ~skipLoad
     end
     clear tmpData
 end
+%% Remove valve artifcats
+% This is much easier to do in Vclamp since they are only a single sample
+
+for iBlock = 1:nBlocks
+    for iPulseType = 1:3
+        tmp = diff(data(iBlock).odorSignal(:,iPulseType)); % Find pulse onsets/offsets
+        tmp = tmp * -1; % Invert them
+        artifactLocs(:,1) = find(tmp > 0.5); 
+        artifactLocs(:,2) = find(tmp < -0.5);
+        artifactLocs = artifactLocs + 2; % Always seem to be 2 samples after onset/offset
+        data(iBlock).data(artifactLocs(:),3,iPulseType:3:end) = ...
+            data(iBlock).data(artifactLocs(:) - 1,3,iPulseType:3:end);
+        clear tmp artifactLocs
+    end
+end
 %% Check individual trials
-save = 0;
-checkRawTrials = 1;
+
+checkRawTrials = 0;
 if checkRawTrials
-    h = @(m,n,p) subtightplot (m, n, p, [0.03 0.03], [0.13 0.12], [0.1 0.015]);
-%     h = @(m,n,p) subtightplot (m, n, p, [0.03 0.03], [0.13 0.12], [0.055 0.015]);
-    for iBlock = 5:nBlocks;
+    h = @(m,n,p) subtightplot (m, n, p, [0.03 0.03], [0.13 0.12], [0.055 0.015]);
+    for iBlock = 1:nBlocks;
         scaledData = scale_200B_data(data(iBlock).data);
-%         scaledData = data(iBlock).data(:,3,:)*10; 
-%         ylims(2) = max(scaledData(:));
-%         ylims(1) = min(scaledData(:));
-        ylims(2) = -25;
-        ylims(1) = -55;
-        for iTrial = 3:3:size(data(iBlock).data, 3)
+        ylims(2) = max(scaledData(:));
+        ylims(1) = min(scaledData(:));
+        for iTrial = 1:size(data(iBlock).data, 3)
             stim = data(iBlock).odorSignal(:, data(iBlock).randTrials(iTrial));
                        
             plot_single(data(iBlock).data(:,:,iTrial), data(iBlock).exp,...
                         data(iBlock).sampRate,...
                         'iTria', iTrial, 'stim', stim, 'h', h, 'ylims', ylims);
-%             set(gcf, 'Position', [0, 0, 1920, 600])
-        ax1 = h(5,1,1:4);
-        set(ax1, 'xtick', [0 5 10])
-        set(ax1, 'ytick', [-45 -25])
-        set(ax1, 'tickdir', 'out')
-        set(ax1, 'linewidth', 2)
-            if save
-                figName = [data(iBlock).exp.date, '_' data(iBlock).exp.lineName, '_', data(iBlock).exp.name, '_' 'trial_' num2str(iTrial)];
-                print([folderPath filesep 'single_trials' filesep figName],'-dpng', '-r0')
-            else
-                pause
-            end       
+                    
 %             plot_odor_trial(h, data(iBlock).data(:,3,iTrial) * 10, ...
 %                             data(iBlock).odorSignal(:, data(iBlock).randTrials(iTrial)), ...
 %                             data(iBlock).sampRate)
 %             ylabel('Vm')
 %             title([data(iBlock).matSaveFile(12:end-6) ' trial ' num2str(iTrial)],...
 %                   'interpreter', 'none')
-
+%             set(gcf, 'Position', [0, 0, 1920, 600])
+            pause
         end
     end
 end 
@@ -85,6 +86,7 @@ raster = NaN(trialDuration(1) * sampRate(1), maxReps, nPulseTypes, nBlocks);
 for iBlock = 1:nBlocks
     conditions = data(iBlock).conditions;
     ephysData = data(iBlock).data;
+    ephysData(:,3,:) = scale_200B_data(ephysData);
     randTrials = data(iBlock).randTrials;
 
     
@@ -97,24 +99,18 @@ for iBlock = 1:nBlocks
         iTrialType = randTrials(iTrial);
         Vm(:,iTrialMap(iTrialType), pulseType(iTrial), iOdor(iTrial)) ...
             = ephysData(:, 3, iTrial);
-%         if iBlock == 5 && iTrial >= 26
-%             Vm(:,iTrialMap(iTrialType), pulseType(iTrial), iOdor(iTrial)) ...
-%                 = NaN(VmSize(1),1);
-%         end
         iTrialMap(iTrialType) = iTrialMap(iTrialType) + 1;
     end
     
-
-    % TODO: get true gain from telegraph output.
-    Vm = (Vm/100)* 1e3; % Hard coded 100x gain, rescaling to units of mV.
-    %% Find spike times
+%     % Find spike times
     % VmThresh = Vm(Vm >
 %     dSampFactor = 10;
 %     Vm = downsample(Vm, dSampFactor);
 %     sampRate(iBlock) = sampRate(iBlock)/dSampFactor;
 %     VmSize(1) = VmSize(1)/dSampFactor;
-    Vm = Vm;
+    
     Vm = reshape(Vm, VmSize(1), VmSize(2) * VmSize(3) * VmSize(4));
+%     Vm = squeeze(ephysData(:,3,:));
     disp('Starting to filter now...')
     tic
     VmFilt = medfilt1(Vm, 0.08 * sampRate(iBlock), 'truncate');
@@ -136,7 +132,8 @@ for iBlock = 1:nBlocks
     end
     
     VmThresh = Vm - VmFilt;
-%     VmThresh(VmThresh < 7) = 0;
+    VmThresh = VmThresh * - 1;
+    VmThresh(VmThresh < 20) = 0;
     
     checkThreshTrials = 0;
     if checkThreshTrials
@@ -169,8 +166,7 @@ for iBlock = 1:nBlocks
     tmpRaster = zeros(size(Vm));
     
     for i = 1:size(VmThresh, 2)
-%         [~, locs] = findpeaks(VmThresh(:, i), 'MinPeakProminence',10, 'MinPeakWidth', sampRate(iBlock) * 0.0007, 'Annotate','extents');
-        [~, locs] = findpeaks(VmThresh(:, i), 'MinPeakProminence',12, 'MinPeakWidth', sampRate(iBlock) * 0.0002, 'MinPeakDistance', sampRate(iBlock) * 0.001,'Annotate','extents');
+        [~, locs] = findpeaks(Vm(:, i) * -1, 'MinPeakProminence',25, 'MinPeakWidth', sampRate(iBlock) * 0.0002, 'MaxPeakWidth', sampRate(iBlock) * 0.002, 'Annotate','extents');
         tmpRaster(locs, i) = 1;
     end
     
@@ -179,8 +175,11 @@ for iBlock = 1:nBlocks
         figure
         for i = 1:size(VmFilt, 2)
             title(['Block ' num2str(iBlock) ', Trial ' num2str(i)])
-%             findpeaks(VmThresh(:, i), 'MinPeakProminence',10, 'MinPeakWidth', sampRate(iBlock) * 0.0007, 'Annotate','extents');
-            findpeaks(VmThresh(:, i), 'MinPeakProminence',12, 'MinPeakWidth', sampRate(iBlock) * 0.0002, 'MinPeakDistance', sampRate(iBlock) * 0.001,'Annotate','extents');
+            findpeaks(Vm(:, i) * -1, 'MinPeakProminence',25, 'MinPeakWidth', sampRate(iBlock) * 0.0002, 'MaxPeakWidth', sampRate(iBlock) * 0.002, 'Annotate','extents');
+            hold on;
+%             plot((Vm - VmFilt) * -1)
+            hold off
+            title(['Block: ' num2str(iBlock) ', ' 'trial: ' num2str(i)]);
             pause
         end
     end
@@ -203,7 +202,7 @@ for iBlock = 1:nBlocks
 %     end
     VmFilt = medfilt1(Vm, 0.04 * sampRate(iBlock), 'truncate');
     VmFilt = reshape(VmFilt, VmSize(1), VmSize(2), VmSize(3),  VmSize(4));
-    meanVm(:, :, iBlock) = squeeze(nanmean(VmFilt,2));
+    meanVm(:, :, iBlock) = squeeze(mean(VmFilt,2));
     
     raster(:,maxReps:-1:maxReps-(nReps(iBlock)-1),:, iBlock) = tmpRaster;
     psth(:,:,iBlock) = tmpPsth;
@@ -223,7 +222,7 @@ for iBlock = 1:length(dataFiles)
         rasterLocs = 0:1/size(raster, 2):(1-1/size(raster, 2));
         for iTrial = 1:size(raster, 2)
             h = quickRaster(find(raster(:,iTrial,iPulseType,iBlock)), ...
-                                        rasterLocs(iTrial), 1/size(raster, 2), 'k');
+                                        rasterLocs(iTrial), 1/size(raster, 2));
             hold on
         end
         
