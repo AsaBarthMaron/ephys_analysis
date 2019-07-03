@@ -5,7 +5,7 @@
 skipLoad = 0;
 if ~skipLoad
     clear
-    folderPath = 'Z:\Data\recordings\LN_dynamics\NP1227-gal4\2017-04-14_cell_attached';
+    folderPath = '/Users/asa/Documents/Data/optogenetic_LN_stim/R24C12-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-01-22';
     load([folderPath filesep 'dataFiles.mat']);
     dataFiles = flipud(dataFiles);
     nBlocks = length(dataFiles);
