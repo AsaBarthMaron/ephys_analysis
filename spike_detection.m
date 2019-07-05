@@ -1,6 +1,10 @@
 clear
-cd('Z:\Data\recordings\optogenetic_LN_stim\NP1227-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN\2019-06-21')
-rawData = load('2019-06-21_Var_freq_stim__PO_8s_490_LED_pulse_50p_ND25_ND3_1.mat');
+dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/NP1227-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-06-21';
+expName = '2019-06-21_Var_freq_stim__2-hep_+farnesol_10^-2_8s_490_LED_pulse_50p_ND25_ND3_1.mat';
+% cd('Z:\Data\recordings\optogenetic_LN_stim\NP1227-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN\2019-06-21')
+% rawData = load('2019-06-21_Var_freq_stim__PO_8s_490_LED_pulse_50p_ND25_ND3_1.mat');
+cd(dataDir)
+rawData = load(expName);
 %% Arrange data
 data = rawData.data;
 sampRate = rawData.sampRate;
@@ -50,7 +54,7 @@ for iTrial = 1:VmSize(2)
         'Annotate','extents');
 end
 
-checkPeaks = 0;
+checkPeaks = 1;
 if checkPeaks
     figure
     for iTrial = 1:size(I, 2)
@@ -63,7 +67,7 @@ if checkPeaks
         hold on
         plot(Vm(:,iTrial))
         axis tight
-        title([matSaveFile, '  - Trial ' num2str(iTrial), ' / ' num2str(VmSize(2))], 'interpreter', 'none')
+        title([rawData.matSaveFile, '  - Trial ' num2str(iTrial), ' / ' num2str(VmSize(2))], 'interpreter', 'none')
         pause
         hold off
     end
@@ -124,4 +128,9 @@ rawData = rmfield(rawData, {'data', 'spacer_data'});
 clearvars -except spacerVmFilt spacerPsth VmFilt psth spikeInds spacerSpikeInds ...
                   bandpassCutoff dsFactor medFiltWindow psthVar ...
                   spd expSize spacerSize timeUnits ...
-                  rawData nTrials
+                  rawData nTrials expName
+if ~isdir('analyzed')
+    mkdir('analyzed');
+end
+cd('analyzed')
+save([expName(1:end-4) '_analyzed.mat']);
