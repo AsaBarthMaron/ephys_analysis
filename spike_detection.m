@@ -1,6 +1,7 @@
 clear
-dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/NP1227-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-06-21';
-expName = '2019-06-21_Var_freq_stim__2-hep_+farnesol_10^-2_8s_490_LED_pulse_50p_ND25_ND3_1.mat';
+% dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/NP1227-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-06-21';
+dataDir = 'Z:\Data\recordings\optogenetic_LN_stim\NP1227-Gal4_UAS_CsChrimson R26A01-LexA_LexAop-mCD8-GFP_PN\2019-07-09';
+expName = '2019-07-09_Var_freq_stim__2-hep_10^-2_490_LED_pulse_same_waveform_30p_ND25_ND3_1.mat';
 % cd('Z:\Data\recordings\optogenetic_LN_stim\NP1227-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN\2019-06-21')
 % rawData = load('2019-06-21_Var_freq_stim__PO_8s_490_LED_pulse_50p_ND25_ND3_1.mat');
 cd(dataDir)
@@ -41,7 +42,7 @@ I = reshape(I, VmSize(1) + spacerVmSize(1), VmSize(2));
 %% Detect spikes
 spd.minProm = 18;
 spd.maxWidth = 1e-3 * sampRate;
-spd.minWidth = 0.4e-3 * sampRate;
+spd.minWidth = 0.3e-3 * sampRate;
 spd.minDistance = 1.5e-3 * sampRate;
 
 
@@ -67,7 +68,7 @@ if checkPeaks
         hold on
         plot(Vm(:,iTrial))
         axis tight
-        title([rawData.matSaveFile, '  - Trial ' num2str(iTrial), ' / ' num2str(VmSize(2))], 'interpreter', 'none')
+        title([expName, '  - Trial ' num2str(iTrial), ' / ' num2str(VmSize(2))], 'interpreter', 'none')
         pause
         hold off
     end
