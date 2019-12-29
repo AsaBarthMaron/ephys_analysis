@@ -4,11 +4,11 @@
 close all
 clear
 % saveDir = '~/Documents/Data/optogenetic_LN_stim/2019-07-15_meta_analysis/NP1227-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-06-17_1';
-dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R78F09-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-11-04';
+dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R24C12-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-12-11';
     saveDir = dataDir;
 cd(fullfile(dataDir, 'analyzed'));
 
-dataFiles = dir();
+dataFiles = dir();  
 dataFiles = dataFiles(~[dataFiles.isdir]);
 [~, I] = sort([dataFiles.datenum]);
 dataFiles = dataFiles(I);
@@ -47,7 +47,6 @@ iStart = 2;
 % expSize = size(VmFilt);
 % spacerSize = size(spacerVmFilt);
 % nTrials = expSize(2);
-
     %%
     figure
     subplot = @(m,n,p) subtightplot (m, n, p, [0.05 0.01], [0.08 0.14], [0.06 0.06]);
@@ -66,7 +65,7 @@ iStart = 2;
         % Plot LED OFF trial rasters
         sp = [spacerSpikeInds{iTrial}; spikeInds{iTrial} + 7e3];
         fig = quickRaster(sp, yPlotInd, 1, colorOrder{1})
-
+        
         % Plot LED ON trial rasters
         sp = [spacerSpikeInds{iTrial+1}; spikeInds{iTrial+1} + 7e3];
         fig = quickRaster(sp, yPlotInd + ((nTrials-1)/2), 1, colorOrder{2})
@@ -150,8 +149,8 @@ legend({'LED on', 'control'});
     plot(ls * (yLimits(2) - 1), 'b', 'linewidth', 8)
     os = downsample(rawData.odorSignal, 10);
     os(os == 0) = NaN;
-%     os = cat(1, NaN(7e3, 1),  os(:,2));
-    os = cat(1, NaN(7e3, 1),  os);
+    os = cat(1, NaN(7e3, 1),  os(:,2));
+%     os = cat(1, NaN(7e3, 1),  os);
     plot(os * (yLimits(2) -3), 'k', 'linewidth', 10)
     plot([spacerSize(1) + timeUnits, spacerSize(1) + timeUnits],...
          yLimits,  'color', [216, 82, 24] / 255,  'linewidth', 2);

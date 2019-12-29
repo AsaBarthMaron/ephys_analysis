@@ -4,7 +4,7 @@
 close all
 clear
 % saveDir = '~/Documents/Data/optogenetic_LN_stim/2019-07-15_meta_analysis/NP1227-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-06-17_1';
-dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R78F09-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-10-31';
+dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R24C12-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-12-11';
 saveDir = dataDir;
 cd(fullfile(dataDir, 'analyzed'));
 
@@ -19,6 +19,34 @@ iStart = 1;
     
 expName = dataFiles(end).name;
 load(expName);
+%% Load second block & concatenate
+% secondExpName = dataFiles(end-1).name;
+% secondData = load(secondExpName);
+% 
+% expName = [expName '_' secondExpName];
+% 
+% reverseOrder = 0;
+% 
+% if reverseOrder
+%     psth = cat(2, psth, reverse_mat_order(secondData.psth(:,2:end)));
+%     spacerPsth = cat(2, spacerPsth, reverse_mat_order(secondData.spacerPsth(:,2:end)));
+%     spacerSpikeInds = cat(2, spacerSpikeInds, reverse_cell_order(secondData.spacerSpikeInds(2:end)));
+%     spacerVmFilt = cat(2, spacerVmFilt, reverse_mat_order(secondData.spacerVmFilt(:, 2:end)));
+%     spikeInds = cat(2, spikeInds, reverse_cell_order(secondData.spikeInds(2:end)));
+%     VmFilt = cat(2, VmFilt, reverse_mat_order(secondData.VmFilt(:, 2:end)));
+% else
+%     psth = cat(2, psth, secondData.psth(:,2:end));
+%     spacerPsth = cat(2, spacerPsth,secondData.spacerPsth(:,2:end));
+%     spacerSpikeInds = cat(2, spacerSpikeInds, secondData.spacerSpikeInds(2:end));
+%     spacerVmFilt = cat(2, spacerVmFilt, secondData.spacerVmFilt(:, 2:end));
+%     spikeInds = cat(2, spikeInds, secondData.spikeInds(2:end));
+%     VmFilt = cat(2, VmFilt, secondData.VmFilt(:, 2:end));
+% end
+% 
+% expSize = size(VmFilt);
+% spacerSize = size(spacerVmFilt);
+% nTrials = expSize(2);
+
 %%
 figure
 subplot = @(m,n,p) subtightplot (m, n, p, [0.05 0.01], [0.08 0.14], [0.06 0.06]);
@@ -61,7 +89,7 @@ ax2 = gca;
 % Calculate mean psth & prep for plotting
 p = cat(1, spacerPsth, NaN(2 * timeUnits, nTrials), psth);
 meanPsth = mean(p, 2);
-meanPsth = meanPsth * timeUnits;
+meanPsth = meanPsth * timeUnits * 10;
 
 % Plot psth and adjust axis settings
 plot(meanPsth, colorOrder{1}, 'linewidth', 2);
@@ -87,11 +115,11 @@ ax3 = gca;
 vf = cat(1, spacerVmFilt, NaN(2 * timeUnits, nTrials), VmFilt);
 
 % Plot filtered voltage and axis settings
-baseline = mean(mean(vf(3*timeUnits:5*timeUnits, :)));
+baseline = mean(nanmean(vf(7*timeUnits:8*timeUnits, :)));
 plot([1 spacerSize(1)], [baseline, baseline], '--', 'color', [0.44 0.74 1])
 % plot(vf, 'color', [0.8 0.8 0.8], 'linewidth', 2);
 hold on
-plot([7*timeUnits size(vf,1)], [baseline, baseline], '--', 'color', [0.44 0.74 1])
+plot([7*timeUnits size(vf,1)], [baseline, baseline], '--', 'color', [0.44 0.74 1], 'linewidth', 2)
 plot(mean(vf, 2), colorOrder{1}, 'linewidth', 2);
 axis tight
 xticks([0:timeUnits:(spacerSize(1) + expSize(1) + 2e3)]);
