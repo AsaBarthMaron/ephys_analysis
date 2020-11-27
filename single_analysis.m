@@ -4,14 +4,14 @@
 close all
 clear
 % saveDir = '~/Documents/Data/optogenetic_LN_stim/2019-07-15_meta_analysis/NP1227-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-06-17_1';
-dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R24C12-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-12-11';
+dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R67B06-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2020-11-09';
 saveDir = dataDir;
 cd(fullfile(dataDir, 'analyzed'));
 
 dataFiles = dir();
 dataFiles = dataFiles(~[dataFiles.isdir]);
 [~, I] = sort([dataFiles.datenum]);
-dataFiles = dataFiles(I);
+dataFiles = dataFiles(I);   
 % dataFiles([5]) = [];
 % dataFiles = dataFiles(10);
 
@@ -106,7 +106,7 @@ plot([spacerSize(1) + timeUnits, spacerSize(1) + timeUnits],...
      [0 max(meanPsth(:))], 'color', [216, 82, 24] / 255, 'linewidth', 2);
 
 %% Filtered voltage
-yLimits =[-60 -20];
+yLimits =[-60 -25];
 
 fig = subplot(3, 1, 3);
 ax3 = gca;

@@ -1,7 +1,7 @@
 close all
 clear
-dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R24C12-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-12-11';
-expName = '2019-12-11_2Hz_2-hep_10^-2_2s_50p_490_LED_ND25_2.mat';
+dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R78F09-Gal4_GFP R60F02-LexA_Chrimson_LN/2020-11-24';
+expName = '2020-11-24_1s_2-hep_10^-4_1s_490_LED_pulse_100p_1.mat';
 % cd('Z:\Data\recordings\optogenetic_LN_stim\NP1227-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN\2019-06-21')
 % rawData = load('2019-06-21_Var_freq_stim__PO_8s_490_LED_pulse_50p_ND25_ND3_1.mat');
 cd(dataDir)
@@ -60,7 +60,7 @@ end
 Vm = cat(1, spacerVm, Vm);
 I = cat(1, spacerI, I);
 %% Detect spikes
-spd.minProm = 16;
+spd.minProm = 15;
 % spd.minProm = 12;
 spd.maxWidth = 1.5e-3 * sampRate;
 spd.minWidth = 0.3e-3 * sampRate;
@@ -100,6 +100,8 @@ end
 % 100ms hanning might be too narrow, but for now I'll stick with it
 psthVar.binSize = 0.1 * sampRate;
 psthVar.method = 'hanning';
+psthVar.method = 'gaussian';
+psthVar.binSize = 0.05 * sampRate
 
 psth = zeros(VmSize(1) + spacerVmSize(1), VmSize(2));
 

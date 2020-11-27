@@ -4,7 +4,7 @@
 close all
 clear
 % saveDir = '~/Documents/Data/optogenetic_LN_stim/2019-07-15_meta_analysis/NP1227-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-06-17_1';
-dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R24C12-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN/2019-12-11';
+dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R78F09-Gal4_GFP R60F02-LexA_Chrimson_LN/2020-11-24';
     saveDir = dataDir;
 cd(fullfile(dataDir, 'analyzed'));
 
@@ -149,8 +149,8 @@ legend({'LED on', 'control'});
     plot(ls * (yLimits(2) - 1), 'b', 'linewidth', 8)
     os = downsample(rawData.odorSignal, 10);
     os(os == 0) = NaN;
-    os = cat(1, NaN(7e3, 1),  os(:,2));
-%     os = cat(1, NaN(7e3, 1),  os);
+%     os = cat(1, NaN(7e3, 1),  os(:,2));
+    os = cat(1, NaN(7e3, 1),  os);
     plot(os * (yLimits(2) -3), 'k', 'linewidth', 10)
     plot([spacerSize(1) + timeUnits, spacerSize(1) + timeUnits],...
          yLimits,  'color', [216, 82, 24] / 255,  'linewidth', 2);
