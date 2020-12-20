@@ -1,56 +1,63 @@
-% load('Z:\Data\recordings\optogenetic_LN_stim\NP1227-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN\2019-01-04\2019-01-04_2-hep_10^-2_2.5s_pulse_3.5s_490_LED_pulse_100p_min_knob_pos_no_NDs_1_actually_30p.mat')
-figure
-plot(downsample(mean(data(:,3,2:2:end), 3), 10), 'linewidth', 1.8)
-hold on
-plot(downsample(mean(data(:,3,3:2:end), 3), 10), 'linewidth', 1.8)
-%%
-figure
-plot(downsample(mean(data(:,3,6:6:end), 3), 10), 'linewidth', 1.8)
-hold on
-plot(downsample(mean(data(:,3,7:6:end), 3), 10), 'linewidth', 1.8)
+clear
+saveDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R78F09-Gal4_GFP R60F02-LexA_Chrimson_LN/2020-12-15';
+expName = '2020-12-15_2s_490_LED_pulse_100p_2.mat';
+cd(fullfile(saveDir));
+load(expName);
+
+% Make/Check fig. folders
+if ~isdir([saveDir filesep 'png']) || ~isdir([saveDir filesep 'fig'])
+    mkdir([saveDir filesep 'png']);
+    mkdir([saveDir filesep 'fig']);
+end
 %% led only
 close all
 % plot(mean(data(:,3,:),3) * 10,'linewidth',1.5)
 % plot(squeeze(data(:,3,2)) * 10,'linewidth',1.2)
-plot(squeeze(data(:,3,:)) * 10,'linewidth',1, 'color', [0.8 0.8 0.8])
+plot(squeeze(data(:,3,:)) * 10,'linewidth',1, 'color', [0.7 0.7 0.7])
 hold on
 plot(mean(data(:,3,:),3) * 10,'linewidth',1.5, 'color', [0.2 0.2 0.2])
 % plot(squeeze(data(:,3,1)) * 10,'linewidth',1.5, 'color', [0.2 0.2 0.2])
-plot((ledSignal) -32, 'linewidth', 2)
+plot((ledSignal) -17, 'linewidth', 2)
+% plot((odorSignal) -12, 'linewidth', 2)
 baseline = mean(mean(data(1:sampRate, 3, :))) * 10;
 plot([1 size(data, 1)], [baseline, baseline], '--', 'linewidth', 2)
-ylim([-55 -30])
+ylim([-60 -15])
 xlim([1 size(data,1)])
 xlabel('time')
 ylabel('Vm')
 % ylabel('current, pA')
-% title('50% 490nm LED power ND25 ND3, 5 trials')
-% title('100% 490nm LED power ND25 ND3 + 1uM TTX, 5uM picrotoxin, 20uM CGP54626 - VClamp -20mV')
-title('100% 490nm LED power, 1uM TTX no ND25')
-% title('100% 490nm LED power ND25 ND3')
+title(expName, 'interpreter', 'none')
 set(gca, 'box', 'off', 'fontsize', 20)
+set(gcf, 'Position', [0,0,800,500]);
+
+print([saveDir filesep 'png' filesep expName, '_voltage.png'], '-dpng', '-r0')
+fig = gcf;
+savefig(gcf, [saveDir filesep 'fig' filesep expName, '_voltage.fig'])
 %% led, odor, interleaved
 close all
-plot(squeeze(data(:,3,2:2:end)) * 10,'linewidth',1, 'color', [0.8 0.8 0.8])
+plot(squeeze(data(:,3,2:2:end)) * 10,'linewidth',1, 'color', [0.6 0.6 0.6])
 hold on
+plot(squeeze(data(:,3,3:2:end)) * 10,'linewidth',1, 'color', [0.9 0.6 0.6])
 plot(mean(data(:,3,2:2:end),3) * 10,'linewidth',1.5, 'color', [0.2 0.2 0.2])
-plot(squeeze(data(:,3,3:2:end)) * 10,'linewidth',1, 'color', [0.7 0.7 0.8])
-plot(mean(data(:,3,3:2:end),3) * 10,'linewidth',1.5, 'color', [0 0 0.4])
+plot(mean(data(:,3,3:2:end),3) * 10,'linewidth',1.5, 'color', [0.3 0 0])
 % plot(squeeze(data(:,3,1)) * 10,'linewidth',1.5, 'color', [0.2 0.2 0.2])
-plot((ledSignal) +10, 'linewidth', 1.2)
-plot((odorSignal) +8, 'linewidth', 1.2)
+plot((ledSignal) - 7, 'linewidth', 2)
+plot((odorSignal) - 9, 'linewidth', 2)
 % plot((odorSignal(:,2)) +8, 'linewidth', 1.2)
 baseline = mean(mean(data(1:sampRate, 3, :))) * 10;
 plot([1 size(data, 1)], [baseline, baseline], '--')
-ylim([-65 15])
+ylim([-60 -5])
 xlim([1 size(data,1)])
 xlabel('time')
 ylabel('Vm')
 % ylabel('current, pA')
-% title('50% 490nm LED power ND25 ND3, 5 trials')
-% title('100% 490nm LED power ND25 ND3 + 1uM TTX, 5uM picrotoxin, 20uM CGP54626 - VClamp -20mV')
-title('Farnesol 10^-^6, 50% 490nm LED power interleaved')
-% title('100% 490nm LED power ND25 ND3')
+title(expName, 'interpreter', 'none')
+set(gca, 'box', 'off', 'fontsize', 20)
+set(gcf, 'Position', [0,0,800,500]);
+
+print([saveDir filesep 'png' filesep expName, '_voltage.png'], '-dpng', '-r0')
+fig = gcf;
+savefig(gcf, [saveDir filesep 'fig' filesep expName, '_voltage.fig'])
 set(gca, 'box', 'off', 'fontsize', 20)
 %% current steps 
 clf
@@ -63,7 +70,7 @@ for i = 1:nSteps
 end
 baseline = mean(mean(data(1:sampRate, 3, :))) * 10;
 plot([1 size(data, 1)], [baseline, baseline], '--')
-ylim([-85 10])
+ylim([-130 20])
 xlim([1 size(data,1)])
 xlabel('time')
 ylabel('Vm')
@@ -71,6 +78,10 @@ ylabel('Vm')
 % title('1s 10^-2 2-hep, example trial', 'interpreter', 'none')
 title('pA steps = [-100, -50, 50, 100]', 'interpreter', 'none')
 set(gca, 'box', 'off', 'fontsize', 20)
+
+print([saveDir filesep 'png' filesep expName, '.png'], '-dpng', '-r0')
+fig = gcf;
+savefig(gcf, [saveDir filesep 'fig' filesep expName, '.fig'])
 %% LED, odor, interleaved 
 close all
 % plot(mean(data(:,3,:),3) * 10,'linewidth',1.5)
