@@ -25,6 +25,12 @@ gainCh = name2num.ai('Gain');
 modeCh = name2num.ai('Mode');
 dataCh = name2num.ai('Scaled output');
 
+if size(data, 2) < 15
+    gainCh = gainCh(1);
+    modeCh = modeCh(1);
+    dataCh = dataCh(1);
+end
+
 if gain == 0 && mode == 0
     gain = squeeze(data(:,gainCh,:));
     mode = squeeze(data(:,modeCh,:));
@@ -36,13 +42,14 @@ gainLookup = [0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500];
 
 for iTrial = 1:size(data, 3)
     % Find appropriate gain factor (scalingFactor)
-    gainIndex = round(median(gain(:, :, iTrial)) * 2); % This is a convenient trick that works
+    gainIndex = round(median(gain(:, iTrial)) * 2); % This is a convenient trick that works
     gainIndex(gainIndex == 0) = []; % Probably should remove this later, just put it in real quick because I had turned off the second amplifier
     scalingFactor = gainLookup(gainIndex);
 %     scalingFactor = 100;
 
     % Scale data
-    scaledData(:, :, iTrial) = data(:, dataCh, iTrial)./scalingFactor; % Data in volts/nA
+%     scaledData(:, :, iTrial) = data(:, dataCh, iTrial)./scalingFactor; % Data in volts/nA
+    scaledData(:, iTrial) = squeeze(data(:, dataCh, iTrial))./scalingFactor; % Data in volts/nA
 end
 
 if size(scaledData, 2) == 1
