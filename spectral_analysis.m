@@ -1,8 +1,7 @@
-% close all
-figure
+close all
 clear
-dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R78F09-Gal4_UAS_CsChrimson R26A01-LexA_LexAop-mCD8-GFP_PN/2019-11-18';
-expName = '2019-11-18_1s_farnesol_10^-4_1s_100p_490_LED_ ND25_ND3_1.mat';
+dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R78F09-Gal4_GFP R60F02-LexA_Chrimson_LN/2020-11-24';
+expName = '2020-11-24_1s_2-hep_10^-2_2s_490_LED_pulse_100p_1.mat'
 cd(dataDir)
 rawData = load(expName);
 data = scale_200B_data(rawData.data);
@@ -12,10 +11,6 @@ nTrials = size(data, 3);
 
 for iTrial = 1:nTrials
     x = data(1.75e4:2.9e4,1,iTrial);
-%     x = data(:,1,iTrial);
-%     x = [zeros(0.5e4,1); data(1.75e4:2.9e4,1,iTrial)+ 47; zeros(0.5e4,1)];
-%     x = data(1e4:4e4,1,iTrial);
-%     x = data(2e4:3.15e4,1,iTrial);
 %     x = data(1.25e4:2.4e4,1,iTrial);
     rng('default')
     sampRate = 10e3;                                % sample frequency (Hz)
@@ -27,14 +22,14 @@ for iTrial = 1:nTrials
     f = (0:n-1)*(sampRate/n);     % frequency range
     power = abs(y).^2/n;    % power of the DFT
 
-    spectra(:,iTrial) = power(1:1000);
+    spectra(:,iTrial) = power(1:200);
 end
 
 
-plot(f(1:1000), mean(spectra(1:1000, 2:2:end),2), 'linewidth', 1.5, 'color', 'k')
+plot(f(1:200), mean(spectra(1:200, 2:2:end),2), 'linewidth', 1.5, 'color', 'k')
 % plot(f(1:200), mean(spectra(1:200, :),2), 'linewidth', 1.5, 'color', 'k')
 hold on
-plot(f(1:1000), mean(spectra(1:1000, 3:2:end),2), 'linewidth', 1.5, 'color', 'r')
+plot(f(1:200), mean(spectra(1:200, 3:2:end),2), 'linewidth', 1.5, 'color', 'r')
 xlabel('Frequency')
 ylabel('Power')
 ylim([0 2000])

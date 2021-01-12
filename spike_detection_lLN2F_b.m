@@ -1,18 +1,16 @@
 close all
 clear
-dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R78F09-Gal4_GFP R60F02-LexA_Chrimson_LN/2020-12-15';
-expName = '2020-12-15_1s_2-hep_10^-4_2s_490_LED_pulse_100p_1.mat';
+dataDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R78F09-Gal4_GFP R60F02-LexA_Chrimson_LN/2021-01-05';
+expName = '2021-01-05_1s_2-hep_10^-2_2s_490_LED_pulse_100p_1.mat';
 % cd('Z:\Data\recordings\optogenetic_LN_stim\NP1227-Gal4_ACR1 R26A01-LexA_LexAop-mCD8-GFP_PN\2019-06-21')
 % rawData = load('2019-06-21_Var_freq_stim__PO_8s_490_LED_pulse_50p_ND25_ND3_1.mat');
 cd(dataDir)
 rawData = load(expName);
+rawData.data(:,9:15,:) = rawData.data;
 %% Arrange data
 % rawData.data(27502,1,:) = rawData.data(27500,1,:);
 data = scale_200B_data(rawData.data);
 sampRate = rawData.sampRate;
-% d = load('/Users/asa/Documents/Data/optogenetic_LN_stim/R78F09-Gal4_UAS_CsChrimson R26A01-LexA_LexAop-mCD8-GFP_PN/2019-11-18/2019-11-18_1s_farnesol_10^-6_2s_100p_490_LED_ ND25_ND3_1.mat');
-% % d = load('2019-11-15_1s_490_LED_pulse_100p_ND25_ND3_1.mat')
-% rawData.spacer_data = d.spacer_data(:,:,1:size(rawData.data,3));
 
 % Pull out Vm and I for med filter and spike detection
 Vm = squeeze(data(:,1,:));                     % 'scale_200B_data' is still set up for dual patch, so just take 1st channel
@@ -44,14 +42,14 @@ bandpassCutoff = [300 1e3];
 if ~noSpacer
     for iTrial = 1:nTrials
         I(:,iTrial) = bandpass_filter(I(:,iTrial), bandpassCutoff, sampRate);
-        I(:,iTrial) = I(:,iTrial) / mad(I(:,iTrial), 1);
+%         I(:,iTrial) = I(:,iTrial) / mad(I(:,iTrial), 1);
         spacerI(:,iTrial) = bandpass_filter(spacerI(:,iTrial), bandpassCutoff, sampRate);
-        spacerI(:,iTrial) = spacerI(:,iTrial) / mad(spacerI(:,iTrial), 1);
+%         spacerI(:,iTrial) = spacerI(:,iTrial) / mad(spacerI(:,iTrial), 1);
     end
 elseif noSpacer
     for iTrial = 1:nTrials
         I(:,iTrial) = bandpass_filter(I(:,iTrial), bandpassCutoff, sampRate);
-        I(:,iTrial) = I(:,iTrial) / mad(I(:,iTrial), 1);
+%         I(:,iTrial) = I(:,iTrial) / mad(I(:,iTrial), 1);
     end
 end
 
@@ -59,16 +57,29 @@ end
 % with. This could also be done by breaking stuff out into a fn.
 Vm = cat(1, spacerVm, Vm);
 I = cat(1, spacerI, I);
+%% Median filter Vm
+% 40 ms window
+medFiltWindow = 0.04 * sampRate;
+VmFilt = medfilt1(Vm, medFiltWindow, 'truncate');
 %% Detect spikes
-spd.minProm = 18;
-% spd.minProm = 12;
-spd.maxWidth = 1.5e-3 * sampRate;
-spd.minWidth = 0.3e-3 * sampRate;
-spd.minDistance = 1.5e-3 * sampRate;
+% spd.minProm = 5;
+spd.minProm = 8;
+spd.maxWidth = 10e-3 * sampRate;
+spd.minWidth = 0.1e-3 * sampRate;
+spd.minDistance = 0.1e-3 * sampRate;
 
-
+% 
+% for iTrial = 1:VmSize(2)
+% plot(Vm(6.75e4:7.25e4,iTrial), 'linewidth', 1.2)
+% hold on
+% plot(VmFilt(6.75e4:7.25e4,iTrial), 'linewidth', 1.2)
+% plot(Vm(6.75e4:7.25e4, iTrial) - VmFilt(6.75e4:7.25e4,iTrial) - 10, 'color', 'k', 'linewidth', 1.2)
+% pause
+% clf
+% end
+% Vm = Vm - VmFilt;
 for iTrial = 1:VmSize(2)
-    [~, spikeInds{iTrial}] = findpeaks(I(:, iTrial) * -1,...
+    [~, spikeInds{iTrial}] = findpeaks(Vm(:, iTrial) - VmFilt(:, iTrial),...
         'MinPeakProminence', spd.minProm,...
         'MaxPeakWidth', spd.maxWidth,...
         'MinPeakWidth', spd.minWidth,...
@@ -76,19 +87,20 @@ for iTrial = 1:VmSize(2)
         'Annotate','extents');
 end
 
-checkPeaks = 1;
+checkPeaks = 0;
 if checkPeaks
 %     figure
     clf
-    for iTrial = 1:size(I, 2)
+    for iTrial = 1:VmSize(2)
         
-        findpeaks(I(:, iTrial) * -1, 'MinPeakProminence', spd.minProm,...
+        findpeaks(Vm(:, iTrial) - VmFilt(:, iTrial), 'MinPeakProminence', spd.minProm,...
             'MaxPeakWidth', spd.maxWidth,...
             'MinPeakWidth', spd.minWidth,...
             'MinPeakDistance', spd.minDistance,...
             'Annotate','extents');
         hold on
-        plot(Vm(:,iTrial), 'linewidth', 1.1 , 'color', [0 0.5 0])
+        plot(Vm(:,iTrial), 'linewidth', 1.1, 'color', [0.2 0.2 0.2])
+        plot(VmFilt(:,iTrial), 'linewidth', 1.3, 'color', [0.8 0.2 0.2] )
         axis tight
         title([expName, '  - Trial ' num2str(iTrial), ' / ' num2str(VmSize(2))], 'interpreter', 'none')
         if mod(iTrial, 2) && iTrial > 1
@@ -114,10 +126,7 @@ for iTrial = 1:size(I, 2)
                                 psthVar.binSize,...
                                 'method', psthVar.method);
 end
-%% Median filter Vm
-% 40 ms window
-medFiltWindow = 0.04 * sampRate;
-VmFilt = medfilt1(Vm, medFiltWindow, 'truncate');
+
 %% Organize variables & save
 
 dsFactor = 10;                   % Downsample factor
@@ -161,4 +170,4 @@ if ~isdir('analyzed')
     mkdir('analyzed');
 end
 cd('analyzed')
-% save([expName(1:end-4) '_analyzed.mat']);
+save([expName(1:end-4) '_analyzed.mat']);

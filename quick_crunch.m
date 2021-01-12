@@ -1,6 +1,6 @@
 clear
-saveDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R78F09-Gal4_GFP R60F02-LexA_Chrimson_LN/2020-12-15';
-expName = '2020-12-15_2s_490_LED_pulse_100p_2.mat';
+saveDir = '/Users/asa/Documents/Data/optogenetic_LN_stim/R78F09-Gal4_GFP R60F02-LexA_Chrimson_LN/2021-01-07';
+expName = '2021-01-07_1s_2-hep_10^-2_Iclamp_fast_1.mat';
 cd(fullfile(saveDir));
 load(expName);
 
@@ -17,11 +17,11 @@ plot(squeeze(data(:,3,:)) * 10,'linewidth',1, 'color', [0.7 0.7 0.7])
 hold on
 plot(mean(data(:,3,:),3) * 10,'linewidth',1.5, 'color', [0.2 0.2 0.2])
 % plot(squeeze(data(:,3,1)) * 10,'linewidth',1.5, 'color', [0.2 0.2 0.2])
-plot((ledSignal) -17, 'linewidth', 2)
+plot((ledSignal) +7, 'linewidth', 2)
 % plot((odorSignal) -12, 'linewidth', 2)
 baseline = mean(mean(data(1:sampRate, 3, :))) * 10;
 plot([1 size(data, 1)], [baseline, baseline], '--', 'linewidth', 2)
-ylim([-60 -15])
+ylim([-50 10])
 xlim([1 size(data,1)])
 xlabel('time')
 ylabel('Vm')
@@ -41,12 +41,12 @@ plot(squeeze(data(:,3,3:2:end)) * 10,'linewidth',1, 'color', [0.9 0.6 0.6])
 plot(mean(data(:,3,2:2:end),3) * 10,'linewidth',1.5, 'color', [0.2 0.2 0.2])
 plot(mean(data(:,3,3:2:end),3) * 10,'linewidth',1.5, 'color', [0.3 0 0])
 % plot(squeeze(data(:,3,1)) * 10,'linewidth',1.5, 'color', [0.2 0.2 0.2])
-plot((ledSignal) - 7, 'linewidth', 2)
-plot((odorSignal) - 9, 'linewidth', 2)
+plot((ledSignal) -7, 'linewidth', 2)
+plot((odorSignal) -9, 'linewidth', 2)
 % plot((odorSignal(:,2)) +8, 'linewidth', 1.2)
 baseline = mean(mean(data(1:sampRate, 3, :))) * 10;
 plot([1 size(data, 1)], [baseline, baseline], '--')
-ylim([-60 -5])
+ylim([-60 10])
 xlim([1 size(data,1)])
 xlabel('time')
 ylabel('Vm')
@@ -70,13 +70,14 @@ for i = 1:nSteps
 end
 baseline = mean(mean(data(1:sampRate, 3, :))) * 10;
 plot([1 size(data, 1)], [baseline, baseline], '--')
-ylim([-130 20])
+ylim([-100 50])
 xlim([1 size(data,1)])
 xlabel('time')
 ylabel('Vm')
 % title('1s 10^-2 2-hep, 5 trials', 'interpreter', 'none')
 % title('1s 10^-2 2-hep, example trial', 'interpreter', 'none')
-title('pA steps = [-100, -50, 50, 100]', 'interpreter', 'none')
+% title('pA steps = [-100, -50, 50, 100]', 'interpreter', 'none')
+title('pA steps = [-60, -30, 30, 60]', 'interpreter', 'none')
 set(gca, 'box', 'off', 'fontsize', 20)
 
 print([saveDir filesep 'png' filesep expName, '.png'], '-dpng', '-r0')
